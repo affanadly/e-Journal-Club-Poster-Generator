@@ -3,10 +3,11 @@ import os
 from shutil import which
 from doi2bib import *
 from apppath import *
+from datetime import datetime
 
 root = fetch_path()
 
-sg.theme('DarkAmber') # Default1
+sg.theme('DarkAmber')
 layout = [[sg.Column([[sg.Image(filename=f'{root}/media/RCRL_small.png')]],justification='center')],
           [sg.Text('Event Details')],
           [sg.Text('Presenter:'),sg.InputText(key='presenter',tooltip="Presenter's name",expand_x=True)],
@@ -24,11 +25,11 @@ layout = [[sg.Column([[sg.Image(filename=f'{root}/media/RCRL_small.png')]],justi
           [sg.Text('URL:'),sg.InputText(key='url',expand_x=True,tooltip="Related URL")],
           [sg.Text()],
           [sg.Text('Save Location:'),sg.InputText(key='save location',expand_x=True),
-           sg.FileSaveAs(file_types=(("PDF File",".pdf"),))],
+           sg.Button('Save As',key='saveas')],
           [sg.ProgressBar(8,orientation='h',size=(10,20),key='progress',expand_x=True),sg.Text('Idle.',key='progress text')],
-          [sg.OK(),sg.Cancel()]]
+          [sg.OK(),sg.Cancel(),sg.Push(),sg.Button('About',size=(5,1),enable_events=True,key='about')]]
 
-window = sg.Window('e-Journal Club Poster Generator v1',layout,resizable=True,icon=f'{root}/media/RCRL.ico')
+window = sg.Window('e-Journal Club Poster Generator v1',layout,resizable=False,icon=f'{root}/media/RCRL.ico')
 
 while True:
     event,values = window.read()
@@ -38,18 +39,46 @@ while True:
         
     if event == 'Search':
         # grabbing bibtex using doi
-        doigrab = grab(values['doi'])
-        if doigrab[0] == 'Success':
-            bibtex = doigrab[1]
+        if values['doi'] != '':
+            doigrab = grab(values['doi'])
+            if doigrab[0] == 'Success':
+                bibtex = doigrab[1]
+                
+                bibtex = bibtex[:bibtex.find(r'{')+1] + 'main' + bibtex[bibtex.find(r','):]
+                bibtex = bibtex.replace('%2F','/')
+                window['bibtex'].update(bibtex)
+            else:
+                sg.popup('Error: ',doigrab[0])
         else:
-            sg.popup('Error: ',doigrab[0])
-            
-        bibtex = bibtex[:bibtex.find(r'{')+1] + 'main' + bibtex[bibtex.find(r','):]
-        bibtex = bibtex.replace('%2F','/')
-        window['bibtex'].update(bibtex)
+            sg.popup('Error: DOI is empty.')
+        
     
     if event == 'Clear':
         window['bibtex'].update('')
+    
+    if event == 'saveas':
+        if values['presenter'] == '':
+            window['progress text'].update('Error.')
+            sg.popup('Error: ','Presenter name not entered.')
+            continue
+            
+        if values['date'] == '':
+            window['progress text'].update('Error.')
+            sg.popup('Error: ','Date not selected.')
+            continue
+            
+        temp = values['date'].split(', ')[1].split(' ')
+        output_loc = sg.tk.filedialog.asksaveasfilename(
+            defaultextension='pdf',
+            filetypes=(("PDF File", "*.pdf"),),
+            initialfile=f'{values["presenter"].replace(" ","")}_{temp[0]}{temp[1][:3]}{temp[2][2:]}',
+            parent=window.TKroot,
+            title="Save As"
+        )
+        window['save location'].update(output_loc)
+    
+    if event == 'about':
+        sg.popup('')
     
     if event == 'OK':
         window['progress'].update(0)
@@ -118,7 +147,7 @@ while True:
             if check == 'incollection':
                 articletype = 5
             else:
-                field = [row.split(' =')[0] for row in bibtex.split(',\n\t')[1:]]
+                field = [row.split('=')[0].strip() for row in bibtex.split(',\n')[1:]]
                 if 'volume' in field:
                     if 'number' in field:
                         articletype = 1
@@ -136,6 +165,13 @@ while True:
             for f in full_field:
                 if f not in field:
                     field_err.append(f)
+            
+            if dict([[i.strip(),j.strip().strip('{}')] for i,j in 
+      [row.split('=') for row in bibtex.split(',\n')[1:]]])['publisher'] == 'arXiv':
+                field_err.remove('journal')
+                temp = bibtex.split(r'\n')
+                temp.insert(1,'  journal = {arXiv},')
+                bibtex = '\n'.join(temp)
 
             if len(field_err) != 0:
                 field_err[0] = field_err[0].capitalize()
@@ -154,9 +190,6 @@ while True:
                 f.write(bibtex)
             
         window['progress'].update(3)
-        
-        # save location
-        output_loc = values['save location']
         
         # compile latex poster
         current_dir = root
