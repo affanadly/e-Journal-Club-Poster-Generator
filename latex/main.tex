@@ -1,0 +1,126 @@
+% e-Journal Club Talk Poster v4
+% for Radio Cosmology Research Laboratory
+% Designed by Shazwan Radzi, LaTeX-ed by Affan Adly
+% Only intended to be used with the e-Journal Club Poster Generator
+% GitHub: https://github.com/affanadly/e-Journal-Club-Poster-Generator
+
+\documentclass{article}[25pt]
+\usepackage[utf8]{inputenc}
+\usepackage[top=20mm,bottom=17mm,left=17mm,right=17mm,landscape,a4paper]{geometry}
+\usepackage[style=apa]{biblatex}
+\usepackage{qrcode}
+\usepackage{hyperref}
+\usepackage{background}
+\usepackage{tabularx}
+\usepackage{multirow}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\usepackage{fontspec}
+
+% details
+\input{settings}
+\input{details}
+
+% colors
+\definecolor{navyblue}{HTML}{024f6d}
+\definecolor{deepblue}{HTML}{222a5b}
+\definecolor{vipurple}{HTML}{440148}
+\definecolor{frameyellow}{HTML}{fc8e01}
+
+% geometry
+\setlength{\fboxsep}{10pt}
+\renewcommand\fbox{\fcolorbox{vipurple}{white}}
+\setlength{\fboxrule}{1.5pt}
+\setlength{\parindent}{0pt}
+
+% background
+\backgroundsetup{
+scale=1,
+angle=0,
+opacity=1,
+contents={\begin{tikzpicture}[remember picture,overlay]
+ \path [top color = navyblue,middle color = deepblue, bottom color = vipurple] (current page.south west)rectangle (current page.north east);
+ \draw[draw=frameyellow,line width=0.8mm] (-137.48mm,-93.98mm) rectangle (137.48mm,93.98mm);
+ \filldraw[fill=white] (-137.48mm+0.5mm,-93.98mm+0.5mm) rectangle (137.48mm-0.5mm,93.98mm-0.5mm);
+\end{tikzpicture}}
+}
+
+% fonts
+\setromanfont{bebas}[
+    Path=./font/,
+    Scale=1,
+    Extension = .ttf]
+\setsansfont{qthelvet}[
+    Path=./font/,
+    Scale=1,
+    Extension = .ttf]
+\setmonofont{qthelvetcnd}[
+    Path=./font/,
+    Scale=1,
+    Extension = .ttf]
+\newcommand{\mainfont}[4]{\fontsize{#1}{#2}\selectfont\textcolor{#3}{#4}}
+
+% generate QR code display
+\newcommand{\qr}[1]{%
+    \href{#1}{\XeTeXLinkBox{\qrcode[height=1.9in]{#1}}}
+    
+    \vspace*{0.5em}
+    
+    \mainfont{20}{20}{black}{\qrcodetext}
+}
+
+% generate image display
+\newcommand{\image}[1]{%
+    \includegraphics[width=\textwidth]{#1}
+}
+
+\begin{document}
+\begin{center}\thispagestyle{empty}
+
+% Title
+\fontsize{32}{30}\selectfont \fbox{\textcolor{frameyellow}{{\textsf{e-JOURNAL CLUB TALK}}}}
+\vspace*{\fill}
+
+\end{center}
+
+% Title of the talk and QR Code
+\begin{minipage}{0.78\textwidth}
+    \raggedright
+    \mainfont{40}{45}{black}{Presenter : \presenter}
+    \vspace*{0.2em}
+    
+    \mainfont{35}{38}{black}{
+    Title : \fulltitle
+    }
+\end{minipage}%
+\begin{minipage}{0.02\textwidth}
+    \hfill
+\end{minipage}%
+\begin{minipage}{0.2\textwidth}
+    \centering\accompany
+\end{minipage}
+
+% Meeting details
+\begin{center}
+\vspace*{\fill}
+\mainfont{35}{30}{navyblue}{\details}
+\vspace*{0.2em}
+
+% Zoom ID
+\mainfont{26}{30}{navyblue}{\href{\meetinglink}{\meetingtext}\\Organised by : Radio Cosmology Lab UM}
+\vspace*{\fill}
+
+\end{center}
+
+% Footer
+{
+\fontsize{18}{18}\selectfont\textcolor{vipurple}{\texttt{
+\renewcommand{\arraystretch}{1}
+\begin{tabularx}{0.98\textwidth}{cYc}
+    \multirow{4}*{\href{https://um.edu.my/}{\XeTeXLinkBox{\includegraphics[width=7em]{media/UM.png}}}} & For more information: & \multirow{4}*{\href{https://sites.google.com/view/radiocosmologylaboratory/home}{\XeTeXLinkBox{\includegraphics[width=6em]{media/RCRL.pdf}}}} \\
+    & {\contactname} & \\
+    & Phone: {\contactphone} & \\
+    & Email: {\contactemail} & 
+\end{tabularx}}
+}}
+
+\end{document}

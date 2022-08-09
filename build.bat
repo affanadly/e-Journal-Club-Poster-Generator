@@ -1,1 +1,0 @@
-pyinstaller --noconsole --add-data doi2bib.py;. --add-data latex;latex --add-data media;media --icon media\RCRL.ico --onefile --name "e-Journal Club" main.py

@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('doi2bib.py', '.'), ('latex', 'latex'), ('media', 'media')],
+    datas=[('doi2bib.py', '.'), ('apppath.py', '.'), ('latex', 'latex'), ('media', 'media')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
